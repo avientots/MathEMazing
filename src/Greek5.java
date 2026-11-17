@@ -3,7 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Skeleton4 {
+public class Greek5 {
 
     private int tileX = 14;
     private int tileY = 8;
@@ -23,11 +23,11 @@ public class Skeleton4 {
     private int currentFrame = 0;
     private int animTimer = 0;
 
-    public Skeleton4() {
+    public Greek5() {
         try {
-            spriteSheet = ImageIO.read(new File("assets/skeleton4.png"));
+            spriteSheet = ImageIO.read(new File("assets/greek5.png"));
         } catch (IOException e) {
-            System.err.println("Error loading assets/skeleton4.png: " + e.getMessage());
+            System.err.println("Error loading assets/greek5.png: " + e.getMessage());
         }
     }
 
