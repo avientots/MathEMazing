@@ -62,6 +62,16 @@ public class Player {
         isMoving = false;
     }
 
+    public void setPosition(int x, int y) {
+        this.tileX = x;
+        this.tileY = y;
+        this.prevX = x;
+        this.prevY = y;
+        this.pixelX = x * 32;
+        this.pixelY = y * 32;
+        this.isMoving = false;
+    }
+
     public void update() {
         double targetX = tileX * 32;
         double targetY = tileY * 32;
