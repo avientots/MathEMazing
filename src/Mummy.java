@@ -27,7 +27,7 @@ public class Mummy {
         try {
             spriteSheet = ImageIO.read(new File("assets/mummy.png"));
         } catch (IOException e) {
-            System.err.println("Error loading assets/skeleton.png: " + e.getMessage());
+            System.err.println("Error loading assets/mummy.png: " + e.getMessage());
         }
     }
 
