@@ -3,22 +3,22 @@ import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
 
-public class Board4 extends JPanel implements ActionListener {
+public class Board3 extends JPanel implements ActionListener {
 
     private Timer timer;
-    private Map4 m;
-    private Player4 p;
-    private Skeleton4 skeleton;
+    private Map3 m;
+    private Player p;
+    private Mummy mummy;
 
     private boolean win = false;
     private boolean upPressed, downPressed, leftPressed, rightPressed, shiftPressed;
     private Random rand = new Random();
     private Font font = new Font("SansSerif", Font.BOLD, 42);
 
-    public Board4() {
-        m = new Map4();
-        p = new Player4();
-        skeleton = new Skeleton4();
+    public Board3() {
+        m = new Map3();
+        p = new Player();
+        mummy = new Mummy();
 
         setPreferredSize(new Dimension(m.getWidth() * 32, m.getHeight() * 32));
         setBackground(new Color(20, 35, 20));
@@ -34,15 +34,15 @@ public class Board4 extends JPanel implements ActionListener {
         if (!win) {
             handleContinuousMovement();
             p.update();
-            skeleton.update();
+            mummy.update();
 
-            if (!skeleton.isDefeated() &&
-                Math.abs(p.getPixelX() - skeleton.getPixelX()) < 18 &&
-                Math.abs(p.getPixelY() - skeleton.getPixelY()) < 18) {
+            if (!mummy.isDefeated() &&
+                Math.abs(p.getPixelX() - mummy.getPixelX()) < 18 &&
+                Math.abs(p.getPixelY() - mummy.getPixelY()) < 18) {
                 askRandomMathQuestion();
             }
 
-            if (!p.isMoving() && skeleton.isDefeated() && m.getMap(p.getTix(), p.getTiy()).equals("f")) {
+            if (!p.isMoving() && mummy.isDefeated() && m.getMap(p.getTix(), p.getTiy()).equals("f")) {
                 win = true;
             }
         }
@@ -87,7 +87,7 @@ public class Board4 extends JPanel implements ActionListener {
         } else {
             num1 = rand.nextInt(10) + 1;
             num2 = rand.nextInt(10) + 1;
-            question = num1 + " × " + num2;
+            question = num1 + " x " + num2;
             correctAnswer = num1 * num2;
         }
 
@@ -109,7 +109,7 @@ public class Board4 extends JPanel implements ActionListener {
 
         if (solved) {
             JOptionPane.showMessageDialog(this, "Correct! The Skeleton steps aside.");
-            skeleton.setDefeated(true);
+            mummy.setDefeated(true);
         } else {
             JOptionPane.showMessageDialog(this, "Wrong! The answer was " + correctAnswer + ". You are pushed back!");
             p.pushBack();
@@ -139,9 +139,9 @@ public class Board4 extends JPanel implements ActionListener {
                 }
             }
 
-            if (!skeleton.isDefeated() && skeleton.getFrame() != null) {
+            if (!mummy.isDefeated() && mummy.getFrame() != null) {
                 int hoverOffset = (int) (Math.sin(System.currentTimeMillis() / 150.0) * 3);
-                g2d.drawImage(skeleton.getFrame(), skeleton.getPixelX(), skeleton.getPixelY() + hoverOffset, null);
+                g2d.drawImage(mummy.getFrame(), mummy.getPixelX(), mummy.getPixelY() + hoverOffset, null);
             }
 
             if (p.getPlayerFrame() != null) {
@@ -150,7 +150,7 @@ public class Board4 extends JPanel implements ActionListener {
         } else {
             g2d.setColor(Color.ORANGE);
             g2d.setFont(font);
-            g2d.drawString("Winner! You claimed the Crown!", (getWidth() / 2) - 310, getHeight() / 2);
+            g2d.drawString("Winner! You claimed the Antique!", (getWidth() / 2) - 310, getHeight() / 2);
         }
     }
 
@@ -177,19 +177,12 @@ public class Board4 extends JPanel implements ActionListener {
     }
 
     public static void main(String[] args) {
-    JFrame frame = new JFrame("Skeleton Math Maze");
-
-    Board4 board = new Board4();
-
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setResizable(false);
-
-    frame.add(board);
-    frame.pack();
-
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
-
-    board.requestFocusInWindow();
+        JFrame frame = new JFrame("Skeleton Math Maze");
+        Board3 board = new Board3();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(board);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }

@@ -3,7 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Player4 {
+public class Player5 {
 
     private int tileX = 15;
     private int tileY = 0;
@@ -29,11 +29,11 @@ public class Player4 {
         {5, 4, 4}  // Right
     };
 
-    public Player4() {
+    public Player5() {
         try {
-            spriteSheet = ImageIO.read(new File("assets/player4.png"));
+            spriteSheet = ImageIO.read(new File("assets/player5.png"));
         } catch (IOException e) {
-            System.err.println("Error loading assets/player4.png: " + e.getMessage());
+            System.err.println("Error loading assets/player5.png: " + e.getMessage());
         }
     }
 
@@ -60,6 +60,16 @@ public class Player4 {
         pixelX = tileX * 32;
         pixelY = tileY * 32;
         isMoving = false;
+    }
+
+    public void setPosition(int x, int y) {
+        this.tileX = x;
+        this.tileY = y;
+        this.prevX = x;
+        this.prevY = y;
+        this.pixelX = x * 32;
+        this.pixelY = y * 32;
+        this.isMoving = false;
     }
 
     public void update() {
