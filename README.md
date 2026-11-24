@@ -69,9 +69,9 @@ MathEMazing/
 - Provide an enjoyable educational adventure through exploration and storytelling.
 
 ## Developers
-avientots - Ashley Venice R. Nosquial
-krshly - Kris Ashley Nicole L. Silos
-naeriii - Louvelle Jade D. Malabanan
+- avientots - Ashley Venice R. Nosquial
+- krshly - Kris Ashley Nicole L. Silos
+- naeriii - Louvelle Jade D. Malabanan
 
 ## Project Status
 Currently under development.
