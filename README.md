@@ -14,7 +14,9 @@ MathEMazing is an educational game project where the player explores different p
 ## Technologies Used
 - Java
 - Java AWT
+- Java Util
 - Java Swing
+- BufferedImage
 
 ## Game Controls
 | Key | Action |
@@ -23,7 +25,6 @@ MathEMazing is an educational game project where the player explores different p
 | A | Move Left |
 | S | Move Down |
 | D | Move Right |
-| ESC | Pause Game |
 
 ## Installation and Setup
 1. Download or clone the repository.
@@ -37,10 +38,23 @@ MathEMazing is an educational game project where the player explores different p
 MathEMazing/
 ├── src/
 │   ├── Main.java
+│   ├── StartScreen.java
 │   ├── Player.java
+│   ├── Skeleton.java
+│   ├── Mummy.java
+│   ├── Snake4.java
+│   ├── Greek5.java
+│   ├── MossyRock.java
 │   ├── Map1.java
 │   ├── Map2.java
-│   └── Map3.java
+│   ├── Map3.java
+│   ├── Map4.java
+│   ├── Map5.java
+│   ├── Board.java
+│   ├── Board2.java
+│   ├── Board3.java
+│   ├── Board4.java
+│   └── Board5.java
 ├── assets/
 │   ├── characters/
 │   ├── maps/
@@ -55,7 +69,9 @@ MathEMazing/
 - Provide an enjoyable educational adventure through exploration and storytelling.
 
 ## Developers
-[Insert Developer Names]
+avientots - Ashley Venice R. Nosquial
+krshly - Kris Ashley Nicole L. Silos
+naeriii - Louvelle Jade D. Malabanan
 
 ## Project Status
 Currently under development.
