@@ -23,7 +23,6 @@ MathEMazing is an educational game project where the player explores different p
 | A | Move Left |
 | S | Move Down |
 | D | Move Right |
-| SPACE | Interact |
 | ESC | Pause Game |
 
 ## Installation and Setup
