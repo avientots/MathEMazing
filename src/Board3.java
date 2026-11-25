@@ -25,20 +25,18 @@ public class Board3 extends JPanel implements ActionListener {
     }
 
     private boolean win = false;
-    private boolean gameOver = false;
-    private boolean upPressed, downPressed, leftPressed, rightPressed, shiftPressed, spacePressed;
+     private boolean gameOver = false;
+    private boolean upPressed, downPressed, leftPressed, rightPressed, shiftPressed;
     private Random rand = new Random();
 
-    private int score = 150;
+    private int score = 300;
     private List<Point> mathTraps = new ArrayList<>();
-    private static final int TOTAL_TRAPS = 25;
+    private static final int TOTAL_TRAPS = 10;
 
-    private static final int OUTER_PADDING = 20;
-    private static final int SCORE_BOX_HEIGHT = 65;
-    private static final int SECTION_GAP = 15;
+    private static final int OUTER_PADDING = 30;
+    private static final int SCORE_BOX_HEIGHT = 75;
+    private static final int SECTION_GAP = 20;
     private static final int MAZE_INNER_PADDING = 12;
-
-    private int tileSize = 32;
 
     private int mazeWidthPx;
     private int mazeHeightPx;
@@ -50,8 +48,17 @@ public class Board3 extends JPanel implements ActionListener {
         p = new Player();
         mummy = new Mummy();
 
-        setPreferredSize(new Dimension(1200, 800));
-        setBackground(new Color(28, 12, 38));
+        mazeWidthPx = m.getWidth() * 32;
+        mazeHeightPx = m.getHeight() * 32;
+
+        mazeStartX = OUTER_PADDING + MAZE_INNER_PADDING;
+        mazeStartY = OUTER_PADDING + SCORE_BOX_HEIGHT + SECTION_GAP + MAZE_INNER_PADDING;
+
+        int totalWidth = mazeWidthPx + (OUTER_PADDING + MAZE_INNER_PADDING) * 2;
+        int totalHeight = mazeStartY + mazeHeightPx + MAZE_INNER_PADDING + OUTER_PADDING;
+
+        setPreferredSize(new Dimension(totalWidth, totalHeight));
+        setBackground(new Color(245, 245, 247));
         addKeyListener(new Al());
         setFocusable(true);
 
@@ -87,14 +94,14 @@ public class Board3 extends JPanel implements ActionListener {
             if (!p.isMoving()) {
                 Point currentTile = new Point(p.getTix(), p.getTiy());
                 if (mathTraps.contains(currentTile)) {
-                    triggerMultiplicationTileQuestion(currentTile);
+                    triggerAdditionTileQuestion(currentTile);
                 }
             }
 
             if (!mummy.isDefeated() &&
                 Math.abs(p.getPixelX() - mummy.getPixelX()) < 18 &&
                 Math.abs(p.getPixelY() - mummy.getPixelY()) < 18) {
-                askMummyQuestion();
+                askSkeletonQuestion();
             }
 
             if (!p.isMoving() && mummy.isDefeated() && m.getMap(p.getTix(), p.getTiy()).equals("f")) {
@@ -124,25 +131,22 @@ public class Board3 extends JPanel implements ActionListener {
         }
     }
 
-    // Level 3 = MULTIPLICATION
-    
-    private void triggerMultiplicationTileQuestion(Point tile) {
+     private void triggerAdditionTileQuestion(Point tile) {
         timer.stop();
         clearKeys();
 
-        int num1 = rand.nextInt(11) + 2;
-        int num2 = rand.nextInt(11) + 2;
-        int correctAnswer = num1 * num2;
+        int num1 = rand.nextInt(25) + 1;
+        int num2 = rand.nextInt(25) + 1;
+        int correctAnswer = num1 + num2;
 
-        String response = QuestionDialog.ask(
+        String response = JOptionPane.showInputDialog(
             this,
-            "Math Tile Challenge!\nWhat is " + num1 + " × " + num2 + "?",
-            "Multiplication Question",
+            "Math Tile Challenge!\nWhat is " + num1 + " + " + num2 + "?",
+            "Addition Question",
             JOptionPane.QUESTION_MESSAGE
         );
 
         boolean solved = false;
-
         if (response != null) {
             try {
                 if (Integer.parseInt(response.trim()) == correctAnswer) {
@@ -154,18 +158,13 @@ public class Board3 extends JPanel implements ActionListener {
         if (solved) {
             score += 10;
             mathTraps.remove(tile);
-            QuestionDialog.message(this, "Correct! +10 Points!");
+            JOptionPane.showMessageDialog(this, "Correct! +10 Points!");
             timer.start();
         } else {
             score = Math.max(0, score - 50);
-            QuestionDialog.message(
-                this,
-                "Wrong! The answer was " + correctAnswer + ". (-50 Points)"
-            );
-
+            JOptionPane.showMessageDialog(this, "Wrong! The answer was " + correctAnswer + ". (-50 Points)");
             if (score <= 0) {
                 gameOver = true;
-                onGameOver();
             } else {
                 p.pushBack();
                 timer.start();
@@ -173,21 +172,17 @@ public class Board3 extends JPanel implements ActionListener {
         }
     }
 
-
-    
-    private void askMummyQuestion() {
+    private void askSkeletonQuestion() {
         timer.stop();
-        clearKeys();
+        upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
 
-        int a = rand.nextInt(20) + 12;
-        int b = rand.nextInt(20) + 12;
-        int correctAnswer = a * b;
+        int num1 = rand.nextInt(30) + 10;
+        int num2 = rand.nextInt(30) + 10;
+        int correctAnswer = num1 + num2;
 
-        String response = QuestionDialog.ask(
+       String response = JOptionPane.showInputDialog(
             this,
-            "THE MUMMY'S FINAL CHALLENGE!\n\n"
-            + "Prove your skills to claim the Crown.\n\n"
-            + a + " × " + b + " = ?",
+            "The Greek King guards the Crown!\nSolve to pass: What is " + num1 + " + " + num2 + "?",
             "Guardian Challenge",
             JOptionPane.QUESTION_MESSAGE
         );
@@ -204,64 +199,19 @@ public class Board3 extends JPanel implements ActionListener {
 
         if (solved) {
             score += 50;
-            QuestionDialog.message(
-                this,
-                "Correct! +50 Points!\nThe Mummy has been defeated!"
-            );
+            JOptionPane.showMessageDialog(this, "Correct! +50 Points! The Greek King steps aside.");
             mummy.setDefeated(true);
             timer.start();
         } else {
-            score = Math.max(0, score - 60);
-            QuestionDialog.message(
-                this,
-                "Wrong! The correct answer was "
-                + correctAnswer + ". (-60 Points)"
-            );
-
+            score = Math.max(0, score - 50);
+            JOptionPane.showMessageDialog(this, "Wrong! The answer was " + correctAnswer + ". (-50 Points)");
             if (score <= 0) {
                 gameOver = true;
-                onGameOver();
             } else {
                 p.pushBack();
                 timer.start();
             }
         }
-    }
-
-
-    private void clearKeys() {
-        upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
-    }
-
-    private void onLevelWon() {
-        timer.stop();
-        clearKeys();
-        repaint();
-        StoryDialog.show(SwingUtilities.getWindowAncestor(this), 3);
-        if (onNext != null) SwingUtilities.invokeLater(onNext);
-    }
-
-    private void onGameOver() {
-        timer.stop();
-        clearKeys();
-        repaint();
-        Object[] options = {"Try Again", "Back to Menu"};
-        int choice = QuestionDialog.choose(this, "You ran out of points!", "Game Over",
-    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-        Runnable next = (choice == 1) ? onMenu : onRestart;
-        if (next != null) SwingUtilities.invokeLater(next);
-    }
-
-    private void showPauseMenu() {
-        if (win || gameOver) return;
-        timer.stop();
-        clearKeys();
-        Object[] options = {"Resume", "Restart Level", "Back to Menu"};
-        int choice = QuestionDialog.choose(this, "Game paused", "Paused",
-    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-        if (choice == 1 && onRestart != null) onRestart.run();
-        else if (choice == 2 && onMenu != null) onMenu.run();
-        else timer.start();
     }
 
     @Override
@@ -270,216 +220,94 @@ public class Board3 extends JPanel implements ActionListener {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.setRenderingHint(
-            RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON
-        );
+        int containerWidth = mazeWidthPx + (MAZE_INNER_PADDING * 2);
+        int mazeContainerHeight = mazeHeightPx + (MAZE_INNER_PADDING * 2);
 
-        // Calculate responsive tile size
-        int availableWidth = getWidth()
-                - (OUTER_PADDING + MAZE_INNER_PADDING) * 2;
+        // 1. Draw Outer Border Frame
+        g2d.setColor(new Color(40, 40, 45));
+        g2d.setStroke(new BasicStroke(2f));
+        g2d.drawRoundRect(12, 12, getWidth() - 24, getHeight() - 24, 30, 30);
 
-        int availableHeight = getHeight()
-                - OUTER_PADDING * 2
-                - SCORE_BOX_HEIGHT
-                - SECTION_GAP
-                - MAZE_INNER_PADDING * 2;
+        // 2. Draw Top Rounded Score Panel
+        g2d.setColor(new Color(216, 216, 220));
+        g2d.fillRoundRect(OUTER_PADDING, OUTER_PADDING, containerWidth, SCORE_BOX_HEIGHT, 28, 28);
 
-        if (m.getWidth() <= 0 || m.getHeight() <= 0) return;
-
-        tileSize = Math.min(
-            32,
-            Math.min(
-                availableWidth / m.getWidth(),
-                availableHeight / m.getHeight()
-            )
-        );
-
-        tileSize = Math.max(1, tileSize);
-
-        // Maze dimensions
-        mazeWidthPx = m.getWidth() * tileSize;
-        mazeHeightPx = m.getHeight() * tileSize;
-
-        int containerWidth =
-                mazeWidthPx + MAZE_INNER_PADDING * 2;
-
-        int mazeContainerHeight =
-                mazeHeightPx + MAZE_INNER_PADDING * 2;
-
-        // Center maze
-        int scoreX = (getWidth() - containerWidth) / 2;
-
-        mazeStartX = (getWidth() - mazeWidthPx) / 2;
-
-        int mazeBoxY =
-                OUTER_PADDING + SCORE_BOX_HEIGHT + SECTION_GAP;
-
-        mazeStartY = mazeBoxY + MAZE_INNER_PADDING;
-
-        // Background + frame
-        GameTheme.drawBackground(g2d, getWidth(), getHeight(), LEVEL);
-
-        // Score panel
-        GameTheme.drawPanel(g2d, scoreX, OUTER_PADDING, containerWidth, SCORE_BOX_HEIGHT, LEVEL);
-
-        g2d.setColor(score <= 50 ? new Color(255, 90, 90) : GameTheme.CREAM);
-
+        g2d.setColor(score <= 50 ? new Color(190, 30, 30) : new Color(35, 35, 40));
         g2d.setFont(new Font("Monospaced", Font.BOLD, 24));
-
         String scoreText = "Score: " + score;
-
         FontMetrics fm = g2d.getFontMetrics();
-
-        int textX = scoreX
-                + (containerWidth - fm.stringWidth(scoreText)) / 2;
-
-        int textY = OUTER_PADDING
-                + ((SCORE_BOX_HEIGHT - fm.getHeight()) / 2)
-                + fm.getAscent();
-
+        int textX = OUTER_PADDING + (containerWidth - fm.stringWidth(scoreText)) / 2;
+        int textY = OUTER_PADDING + ((SCORE_BOX_HEIGHT - fm.getHeight()) / 2) + fm.getAscent();
         g2d.drawString(scoreText, textX, textY);
 
-        // Maze container
-        GameTheme.drawPanel(g2d, scoreX, mazeBoxY, containerWidth, mazeContainerHeight, LEVEL);
+        // 3. Draw Bottom Rounded Maze Container
+        int mazeBoxY = OUTER_PADDING + SCORE_BOX_HEIGHT + SECTION_GAP;
+        g2d.setColor(new Color(216, 216, 220));
+        g2d.fillRoundRect(OUTER_PADDING, mazeBoxY, containerWidth, mazeContainerHeight, 28, 28);
 
-        // Clip maze drawing
         Shape oldClip = g2d.getClip();
-
-        g2d.setClip(
-            new RoundRectangle2D.Float(
-                mazeStartX,
-                mazeStartY,
-                mazeWidthPx,
-                mazeHeightPx,
-                16, 16
-            )
-        );
-
-        g2d.setRenderingHint(
-            RenderingHints.KEY_INTERPOLATION,
-            RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
-        );
+        g2d.setClip(new RoundRectangle2D.Float(mazeStartX, mazeStartY, mazeWidthPx, mazeHeightPx, 16, 16));
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
         if (!win && !gameOver) {
-
             // Draw Map Tiles
             for (int y = 0; y < m.getHeight(); y++) {
 
                 for (int x = 0; x < m.getWidth(); x++) {
-
-                    int drawX = mazeStartX + (x * tileSize);
-                    int drawY = mazeStartY + (y * tileSize);
-
+                    int drawX = mazeStartX + (x * 32);
+                    int drawY = mazeStartY + (y * 32);
                     String tile = m.getMap(x, y);
 
                     if (tile.equals("w")) {
-
-                        g2d.drawImage(
-                            m.getWall(),
-                            drawX, drawY,
-                            tileSize, tileSize,
-                            null
-                        );
-
-                    } else if (tile.equals("f")) {
-
-                        g2d.drawImage(
-                            m.getFinish(),
-                            drawX, drawY,
-                            tileSize, tileSize,
-                            null
-                        );
-
+                        g2d.drawImage(m.getWall(), drawX, drawY, null);
                     } else {
-
-                        g2d.drawImage(
-                            m.getGrass(),
-                            drawX, drawY,
-                            tileSize, tileSize,
-                            null
-                        );
+                        g2d.drawImage(m.getGrass(), drawX, drawY, null);
+                        if (tile.equals("f") && x == 15 && y == 10) {
+                            g2d.drawImage(m.getFinish(), drawX, drawY, null);
+                        }
                     }
                 }
             }
 
-            // Draw Math Tile Markers
+            // Draw Random Addition Tile Markers
             for (Point trap : mathTraps) {
-                GameTheme.drawMarker(g2d, LEVEL,
-                    mazeStartX + trap.x * tileSize,
-                    mazeStartY + trap.y * tileSize,
-                    tileSize);
+                int tx = mazeStartX + (trap.x * 32) + 10;
+                int ty = mazeStartY + (trap.y * 32) + 10;
+                g2d.setColor(new Color(255, 220, 50, 180));
+                g2d.fillOval(tx, ty, 12, 12);
+                g2d.setColor(Color.WHITE);
+                g2d.drawOval(tx, ty, 12, 12);
             }
 
-            // Scaling factor
-            double scale = tileSize / 32.0;
-
-            // Draw Mummy
-            if (!mummy.isDefeated()) {
-
-                int mummyX = mazeStartX
-                        + (int)(mummy.getPixelX() * scale);
-
-                int mummyY = mazeStartY
-                        + (int)(mummy.getPixelY() * scale);
-
-                int hoverOffset = (int)(
-                    Math.sin(System.currentTimeMillis() / 150.0)
-                    * 3 * scale
-                );
-
-                g2d.drawImage(
-                    mummy.getFrame(),
-                    mummyX,
-                    mummyY + hoverOffset,
-                    tileSize,
-                    tileSize,
-                    null
-                );
+            // Draw Skeleton
+            if (!mummy.isDefeated() && mummy.getFrame() != null) {
+                int hoverOffset = (int) (Math.sin(System.currentTimeMillis() / 150.0) * 3);
+                g2d.drawImage(mummy.getFrame(), mazeStartX + mummy.getPixelX(), mazeStartY + mummy.getPixelY() + hoverOffset, null);
             }
 
             // Draw Player
-            int playerX = mazeStartX
-                    + (int)(p.getPixelX() * scale);
-
-            int playerY = mazeStartY
-                    + (int)(p.getPixelY() * scale);
-
             if (p.getPlayerFrame() != null) {
-
-                g2d.drawImage(
-                    p.getPlayerFrame(),
-                    playerX,
-                    playerY,
-                    tileSize,
-                    tileSize,
-                    null
-                );
+                g2d.drawImage(p.getPlayerFrame(), mazeStartX + p.getPixelX(), mazeStartY + p.getPixelY(), null);
             }
+        } else if (gameOver) {
+            g2d.setColor(new Color(30, 30, 35));
+            g2d.fillRect(mazeStartX, mazeStartY, mazeWidthPx, mazeHeightPx);
+            g2d.setColor(new Color(220, 60, 60));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 38));
+            String overMsg = "Game Over! You ran out of points.";
+            int overX = mazeStartX + (mazeWidthPx - g2d.getFontMetrics().stringWidth(overMsg)) / 2;
+            g2d.drawString(overMsg, overX, mazeStartY + (mazeHeightPx / 2));
+        } else {
+            g2d.setColor(new Color(30, 30, 35));
+            g2d.fillRect(mazeStartX, mazeStartY, mazeWidthPx, mazeHeightPx);
+            g2d.setColor(Color.ORANGE);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 38));
+            String winMsg = "Winner! Final Score: " + score;
+            int winX = mazeStartX + (mazeWidthPx - g2d.getFontMetrics().stringWidth(winMsg)) / 2;
+            g2d.drawString(winMsg, winX, mazeStartY + (mazeHeightPx / 2));
         }
 
-        // Restore original clip
         g2d.setClip(oldClip);
-
-        // Game status
-        if (win || gameOver) {
-
-            String message = win
-                    ? "YOU WIN!"
-                    : "GAME OVER";
-
-            g2d.setColor(GameTheme.CREAM);
-            g2d.setFont(new Font("Arial", Font.BOLD, 36));
-
-            FontMetrics statusFM = g2d.getFontMetrics();
-
-            int messageX =
-                    (getWidth() - statusFM.stringWidth(message)) / 2;
-
-            int messageY = getHeight() / 2;
-
-            g2d.drawString(message, messageX, messageY);
-        }
     }
 
     private class Al extends KeyAdapter {
