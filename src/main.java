@@ -1,20 +1,15 @@
 import java.awt.*;
 import javax.swing.*;
 
-/**
- * Start screen for MathEMazing with a Start button and a How it works button.
- * Run this class to launch the game from the start screen.
- */
-public class main extends JPanel {
+public class Main extends JPanel {
 
     private static final Color BG = new Color(11, 26, 16);
     private static final Color GOLD = new Color(242, 182, 50);
     private static final Color GOLD_DARK = new Color(184, 133, 26);
     private static final Color CREAM = new Color(244, 235, 208);
     private static final Color MUTED = new Color(185, 182, 160);
-    private static final Font MONO_BOLD = new Font("Courier New", Font.BOLD, 28);
 
-    public main(Runnable onStart) {
+    public Main(Runnable onStart) {
         setLayout(new GridBagLayout());
         setBackground(BG);
 
@@ -40,7 +35,7 @@ public class main extends JPanel {
         how.setMaximumSize(new Dimension(200, 70));
         how.addActionListener(e -> showHowItWorks());
 
-        // Stack the buttons vertically: Start on top, How it works below
+        // Stack the buttons vertically: Start on top, How to play below
         JPanel buttons = new JPanel();
         buttons.setOpaque(false);
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -83,14 +78,16 @@ public class main extends JPanel {
 
         JTextArea text = new JTextArea(
             "1. Explore the maze with W A S D or the arrow keys.\n"
-          + "   Hold Shift to run. Press Space to attack.\n\n"
+          + "   Hold Shift to run. Press Space to attack.\n"
+          + "   Press Esc to pause.\n\n"
           + "2. Yellow dots are math tiles. Step on one to get a\n"
-          + "   division question. Correct: +10. Wrong: -50 and\n"
-          + "   you are pushed back.\n\n"
-          + "3. Touch the Greek King for his final challenge.\n"
+          + "   question. Correct: +10. Wrong: -50 and you are\n"
+          + "   pushed back.\n\n"
+          + "3. Touch the guardian for the final challenge.\n"
           + "   Correct: +50. Wrong: -60.\n\n"
-          + "4. Defeat him, then reach the finish tile for +100\n"
-          + "   and the win.\n\n"
+          + "4. Defeat the guardian, then reach the finish tile\n"
+          + "   for +100 and the win. Each level unlocks a part\n"
+          + "   of the story.\n\n"
           + "Your score starts at 150. Hit zero and it is game over.");
         text.setEditable(false);
         text.setFocusable(false);
@@ -165,7 +162,7 @@ public class main extends JPanel {
             g2.setFont(new Font("Courier New", Font.BOLD, 88));
             FontMetrics fm = g2.getFontMetrics();
 
-            String a = "Math", b = "E", c = "Mazing";
+            String a = "MATH", b = "e", c = "MAZING";
             int total = fm.stringWidth(a + b + c);
             int x = (getWidth() - total) / 2;
             int y = 95;
@@ -244,19 +241,38 @@ public class main extends JPanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("MathEMazing");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-            main start = new main(() -> {
-                Board4 board = new Board4();
-                frame.setContentPane(board);
-                frame.revalidate();
-                frame.repaint();
-                board.requestFocusInWindow();
-            });
-
-            frame.setContentPane(start);
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setMinimumSize(new Dimension(900, 650));
+            showMenu(frame);
             frame.setVisible(true);
         });
+    }
+
+    private static void showMenu(JFrame frame) {
+        swapTo(frame, new Main(() -> startLevel(frame, 1))); // Start button -> Level 1
+    }
+
+    private static void startLevel(JFrame frame, int level) {
+        // next: after winning. Level 5 -> "Play Again" goes back to Level 1
+        Runnable next    = () -> startLevel(frame, level < 5 ? level + 1 : 1);
+        Runnable restart = () -> startLevel(frame, level);
+        Runnable menu    = () -> showMenu(frame);
+
+        JPanel board;
+        switch (level) {
+            case 1 -> { Board  b = new Board();  b.setCallbacks(next, restart, menu); board = b; }
+            case 2 -> { Board2 b = new Board2(); b.setCallbacks(next, restart, menu); board = b; }
+            case 3 -> { Board3 b = new Board3(); b.setCallbacks(next, restart, menu); board = b; }
+            case 4 -> { Board4 b = new Board4(); b.setCallbacks(next, restart, menu); board = b; }
+            default -> { Board5 b = new Board5(); b.setCallbacks(next, restart, menu); board = b; }
+        }
+        swapTo(frame, board);
+        board.requestFocusInWindow();
+    }
+
+    private static void swapTo(JFrame frame, JComponent panel) {
+        frame.setContentPane(panel);
+        frame.revalidate();
+        frame.repaint();
     }
 }

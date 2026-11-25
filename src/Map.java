@@ -14,7 +14,7 @@ public class Map {
             // Auto-crop transparent padding from grass and wall so tiles connect seamlessly
             BufferedImage rawGrass = autoCrop(ImageIO.read(new File("assets/grass.png")));
             BufferedImage rawWall = autoCrop(ImageIO.read(new File("assets/wall.png")));
-            BufferedImage rawFinish = autoCrop(ImageIO.read(new File("assets/art1.png")));
+            BufferedImage rawFinish = autoCrop(ImageIO.read(new File("assets/finish1.png")));
 
             grass = rawGrass.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
             wall = rawWall.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
