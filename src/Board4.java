@@ -14,6 +14,14 @@ public class Board4 extends JPanel implements ActionListener {
     private Player p;
     private Snake4 snake;
 
+    private Runnable onNext, onRestart, onMenu;
+
+    public void setCallbacks(Runnable onNext, Runnable onRestart, Runnable onMenu) {
+        this.onNext = onNext;
+        this.onRestart = onRestart;
+        this.onMenu = onMenu;
+    }
+
     private boolean win = false;
     private boolean gameOver = false;
     private boolean upPressed, downPressed, leftPressed, rightPressed, shiftPressed, spacePressed;
@@ -21,7 +29,8 @@ public class Board4 extends JPanel implements ActionListener {
 
     private int score = 150;
     private List<Point> mathTraps = new ArrayList<>();
-    private static final int TOTAL_TRAPS = 30;
+    private static final int TOTAL_TRAPS = 25;
+    private static final int LEVEL = 4;
 
     private static final int OUTER_PADDING = 20;
     private static final int SCORE_BOX_HEIGHT = 65;
@@ -90,6 +99,7 @@ public class Board4 extends JPanel implements ActionListener {
             if (!p.isMoving() && snake.isDefeated() && m.getMap(p.getTix(), p.getTiy()).equals("f")) {
                 score += 100;
                 win = true;
+                onLevelWon();
             }
         }
         repaint();
@@ -113,15 +123,17 @@ public class Board4 extends JPanel implements ActionListener {
         }
     }
 
+   
     private void triggerDivisionTileQuestion(Point tile) {
         timer.stop();
         upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
 
-        int num1 = rand.nextInt(25) + 1;
-        int num2 = rand.nextInt(25) + 1;
-        int correctAnswer = num1 / num2;
+        int num2 = rand.nextInt(11) + 2;
+        int answer = rand.nextInt(11) + 2;
+        int num1 = num2 * answer;
+        int correctAnswer = answer;
 
-        String response = JOptionPane.showInputDialog(
+        String response = QuestionDialog.ask(
             this,
             "Math Tile Challenge!\nWhat is " + num1 + " / " + num2 + "?",
             "Division Question",
@@ -140,13 +152,15 @@ public class Board4 extends JPanel implements ActionListener {
         if (solved) {
             score += 10;
             mathTraps.remove(tile);
-            JOptionPane.showMessageDialog(this, "Correct! +10 Points!");
+            QuestionDialog.message(this, "Correct! +10 Points!");
             timer.start();
         } else {
             score = Math.max(0, score - 50);
-            JOptionPane.showMessageDialog(this, "Wrong! The answer was " + correctAnswer + ". (-50 Points)");
+            QuestionDialog.message(this,
+                "Wrong! The answer was " + correctAnswer + ". (-50 Points)");
             if (score <= 0) {
                 gameOver = true;
+                onGameOver();
             } else {
                 p.pushBack();
                 timer.start();
@@ -154,22 +168,23 @@ public class Board4 extends JPanel implements ActionListener {
         }
     }
 
+    
     private void asksnakeQuestion() {
         timer.stop();
         upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
 
-        int divisor = rand.nextInt(24) + 17;  // 17–40
-        int quotient = rand.nextInt(41) + 30; // 30–70
+        int divisor = rand.nextInt(24) + 17;
+        int quotient = rand.nextInt(41) + 30;
 
         int dividend = divisor * quotient;
         int correctAnswer = quotient;
 
-        String response = JOptionPane.showInputDialog(
+        String response = QuestionDialog.ask(
             this,
             "THE GREEK KING'S FINAL CHALLENGE!\n\n"
             + "Prove your skills to claim the Crown.\n\n"
             + dividend + " ÷ " + divisor + " = ?",
-            "M4 - Guardian Challenge",
+            "Guardian Challenge",
             JOptionPane.QUESTION_MESSAGE
         );
 
@@ -184,16 +199,19 @@ public class Board4 extends JPanel implements ActionListener {
 
         if (solved) {
             score += 50;
-            JOptionPane.showMessageDialog(this, "Correct! +50 Points!\n"
-            + "The Greek King has been defeated!");
+            QuestionDialog.message(this,
+                "Correct! +50 Points!\n"
+                + "The Greek King has been defeated!");
             snake.setDefeated(true);
             timer.start();
         } else {
             score = Math.max(0, score - 60);
-            JOptionPane.showMessageDialog(this, "Wrong! The correct answer was "
-            + correctAnswer + ". (-60 Points)");
+            QuestionDialog.message(this,
+                "Wrong! The correct answer was "
+                + correctAnswer + ". (-60 Points)");
             if (score <= 0) {
                 gameOver = true;
+                onGameOver();
             } else {
                 p.pushBack();
                 timer.start();
@@ -201,6 +219,41 @@ public class Board4 extends JPanel implements ActionListener {
         }
     }
 
+
+        private void clearKeys() {
+        upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
+    }
+
+    private void onLevelWon() {
+        timer.stop();
+        clearKeys();
+        repaint();
+        StoryDialog.show(SwingUtilities.getWindowAncestor(this), 4);
+        if (onNext != null) SwingUtilities.invokeLater(onNext);
+    }
+
+    private void onGameOver() {
+        timer.stop();
+        clearKeys();
+        repaint();
+        Object[] options = {"Try Again", "Back to Menu"};
+        int choice = QuestionDialog.choose(this, "You ran out of points!", "Game Over",
+    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+        Runnable next = (choice == 1) ? onMenu : onRestart;
+        if (next != null) SwingUtilities.invokeLater(next);
+    }
+
+    private void showPauseMenu() {
+        if (win || gameOver) return;
+        timer.stop();
+        clearKeys();
+        Object[] options = {"Resume", "Restart Level", "Back to Menu"};
+        int choice = QuestionDialog.choose(this, "Game paused", "Paused",
+    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (choice == 1 && onRestart != null) onRestart.run();
+        else if (choice == 2 && onMenu != null) onMenu.run();
+        else timer.start();
+    }
    
     @Override
     protected void paintComponent(Graphics g) {
@@ -256,30 +309,12 @@ public class Board4 extends JPanel implements ActionListener {
         mazeStartY = mazeBoxY + MAZE_INNER_PADDING;
 
         // Outer border
-        g2d.setColor(new Color(40, 40, 45));
-        g2d.setStroke(new BasicStroke(2f));
-
-        g2d.drawRoundRect(
-            12, 12,
-            getWidth() - 24,
-            getHeight() - 24,
-            30, 30
-        );
+        GameTheme.drawBackground(g2d, getWidth(), getHeight(), LEVEL);
 
         // Score panel
-        g2d.setColor(new Color(216, 216, 220));
+        GameTheme.drawPanel(g2d, scoreX, OUTER_PADDING, containerWidth, SCORE_BOX_HEIGHT, LEVEL);
 
-        g2d.fillRoundRect(
-            scoreX, OUTER_PADDING,
-            containerWidth, SCORE_BOX_HEIGHT,
-            28, 28
-        );
-
-        g2d.setColor(
-            score <= 50
-            ? new Color(190, 30, 30)
-            : new Color(35, 35, 40)
-        );
+        g2d.setColor(score <= 50 ? new Color(255, 90, 90) : GameTheme.CREAM);
 
         g2d.setFont(new Font("Monospaced", Font.BOLD, 24));
 
@@ -297,13 +332,7 @@ public class Board4 extends JPanel implements ActionListener {
         g2d.drawString(scoreText, textX, textY);
 
         // Maze container
-        g2d.setColor(new Color(216, 216, 220));
-
-        g2d.fillRoundRect(
-            scoreX, mazeBoxY,
-            containerWidth, mazeContainerHeight,
-            28, 28
-        );
+        GameTheme.drawPanel(g2d, scoreX, mazeBoxY, containerWidth, mazeContainerHeight, LEVEL);
 
         // Clip maze drawing
         Shape oldClip = g2d.getClip();
@@ -365,31 +394,12 @@ public class Board4 extends JPanel implements ActionListener {
                 }
             }
 
-            // Draw Math Tile Markers
-            g2d.setColor(Color.YELLOW);
-            g2d.setStroke(new BasicStroke(2f));
-
+                        // Draw Math Tile Markers
             for (Point trap : mathTraps) {
-
-                int markerSize = Math.max(5, tileSize / 3);
-
-                int tx = mazeStartX
-                        + (trap.x * tileSize)
-                        + (tileSize - markerSize) / 2;
-
-                int ty = mazeStartY
-                        + (trap.y * tileSize)
-                        + (tileSize - markerSize) / 2;
-
-                g2d.fillOval(
-                    tx, ty,
-                    markerSize, markerSize
-                );
-
-                g2d.drawOval(
-                    tx, ty,
-                    markerSize, markerSize
-                );
+                GameTheme.drawMarker(g2d, LEVEL,
+                    mazeStartX + trap.x * tileSize,
+                    mazeStartY + trap.y * tileSize,
+                    tileSize);
             }
 
             // Scaling factor
@@ -449,7 +459,7 @@ public class Board4 extends JPanel implements ActionListener {
                     ? "YOU WIN!"
                     : "GAME OVER";
 
-            g2d.setColor(new Color(20, 20, 25));
+            g2d.setColor(GameTheme.CREAM);
             g2d.setFont(new Font("Arial", Font.BOLD, 36));
 
             FontMetrics statusFM = g2d.getFontMetrics();
@@ -490,6 +500,8 @@ public class Board4 extends JPanel implements ActionListener {
                 spacePressed = true;
                 p.attack();
             }
+            else if (key == KeyEvent.VK_ESCAPE)
+                showPauseMenu();
         }
 
         @Override

@@ -9,10 +9,20 @@ import javax.swing.*;
 
 public class Board3 extends JPanel implements ActionListener {
 
+    private static final int LEVEL = 3; // used by GameTheme (colors + marker style)
+
     private Timer timer;
     private Map3 m;
     private Player p;
     private Mummy mummy;
+
+    private Runnable onNext, onRestart, onMenu;
+
+    public void setCallbacks(Runnable onNext, Runnable onRestart, Runnable onMenu) {
+        this.onNext = onNext;
+        this.onRestart = onRestart;
+        this.onMenu = onMenu;
+    }
 
     private boolean win = false;
      private boolean gameOver = false;
@@ -97,13 +107,14 @@ public class Board3 extends JPanel implements ActionListener {
             if (!p.isMoving() && mummy.isDefeated() && m.getMap(p.getTix(), p.getTiy()).equals("f")) {
                 score += 100;
                 win = true;
+                onLevelWon();
             }
         }
         repaint();
     }
 
     private void handleContinuousMovement() {
-        if (p.isMoving()) return;
+        if (p.isMoving() || p.isAttacking()) return;
 
         int dx = 0, dy = 0;
         if (upPressed) dy = -1;
@@ -122,7 +133,7 @@ public class Board3 extends JPanel implements ActionListener {
 
      private void triggerAdditionTileQuestion(Point tile) {
         timer.stop();
-        upPressed = downPressed = leftPressed = rightPressed = shiftPressed = false;
+        clearKeys();
 
         int num1 = rand.nextInt(25) + 1;
         int num2 = rand.nextInt(25) + 1;
@@ -177,6 +188,7 @@ public class Board3 extends JPanel implements ActionListener {
         );
 
         boolean solved = false;
+
         if (response != null) {
             try {
                 if (Integer.parseInt(response.trim()) == correctAnswer) {
@@ -205,8 +217,8 @@ public class Board3 extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
         int containerWidth = mazeWidthPx + (MAZE_INNER_PADDING * 2);
         int mazeContainerHeight = mazeHeightPx + (MAZE_INNER_PADDING * 2);
@@ -240,6 +252,7 @@ public class Board3 extends JPanel implements ActionListener {
         if (!win && !gameOver) {
             // Draw Map Tiles
             for (int y = 0; y < m.getHeight(); y++) {
+
                 for (int x = 0; x < m.getWidth(); x++) {
                     int drawX = mazeStartX + (x * 32);
                     int drawY = mazeStartY + (y * 32);
@@ -297,30 +310,63 @@ public class Board3 extends JPanel implements ActionListener {
         g2d.setClip(oldClip);
     }
 
-    public class Al extends KeyAdapter {
+    private class Al extends KeyAdapter {
+
         @Override
         public void keyPressed(KeyEvent e) {
+
             int key = e.getKeyCode();
-            if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP) upPressed = true;
-            else if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) downPressed = true;
-            else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) leftPressed = true;
-            else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) rightPressed = true;
-            else if (key == KeyEvent.VK_SHIFT) shiftPressed = true;
+
+            if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
+                upPressed = true;
+
+            else if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
+                downPressed = true;
+
+            else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
+                leftPressed = true;
+
+            else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
+                rightPressed = true;
+
+            else if (key == KeyEvent.VK_SHIFT)
+                shiftPressed = true;
+
+            else if (key == KeyEvent.VK_SPACE && !spacePressed) {
+                spacePressed = true;
+                p.attack();
+            }
+            else if (key == KeyEvent.VK_ESCAPE)
+                showPauseMenu();
         }
 
         @Override
         public void keyReleased(KeyEvent e) {
+
             int key = e.getKeyCode();
-            if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP) upPressed = false;
-            else if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) downPressed = false;
-            else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) leftPressed = false;
-            else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) rightPressed = false;
-            else if (key == KeyEvent.VK_SHIFT) shiftPressed = false;
+
+            if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
+                upPressed = false;
+
+            else if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
+                downPressed = false;
+
+            else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
+                leftPressed = false;
+
+            else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
+                rightPressed = false;
+
+            else if (key == KeyEvent.VK_SHIFT)
+                shiftPressed = false;
+
+            else if (key == KeyEvent.VK_SPACE)
+                spacePressed = false;
         }
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Skeleton Math Maze");
+        JFrame frame = new JFrame("Mummy Math Maze");
         Board3 board = new Board3();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(board);
