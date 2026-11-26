@@ -11,13 +11,13 @@ public class Map2 {
 
     public Map2() {
         try {
-            BufferedImage rawGrass = autoCrop(ImageIO.read(new File("assets/grass2.png")));
+            BufferedImage rawGrass = autoCrop(ImageIO.read(new File("assets/grass2.jpg")));
             BufferedImage rawWall = autoCrop(ImageIO.read(new File("assets/wall2.png")));
-            BufferedImage rawFinish = autoCrop(ImageIO.read(new File("assets/art2.png")));
+            BufferedImage rawFinish = autoCrop(ImageIO.read(new File("assets/map.png")));
 
             grass = rawGrass.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
             wall = rawWall.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-            finish = rawFinish.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+            finish = rawFinish.getScaledInstance(32, 32, Image.SCALE_SMOOTH); 
         } catch (IOException e) {
             System.err.println("Error loading Map2 images: " + e.getMessage());
         }
