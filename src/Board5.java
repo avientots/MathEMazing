@@ -11,7 +11,7 @@ public class Board5 extends JPanel implements ActionListener {
 
     private Timer timer;
     private Map5 m;
-    private Player5 p;
+    private Player p;
     private Greek5 skeleton;
 
     private boolean win = false;
@@ -35,7 +35,7 @@ public class Board5 extends JPanel implements ActionListener {
 
     public Board5() {
         m = new Map5();
-        p = new Player5();
+        p = new Player();
         skeleton = new Greek5();
 
         mazeWidthPx = m.getWidth() * 32;
