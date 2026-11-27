@@ -248,7 +248,7 @@ public class Main extends JPanel {
         });
     }
 
-   private static void showMenu(JFrame frame) {
+public static void showMenu(JFrame frame) {
         Main menuPanel = new Main(() -> {
             String playerName = GameRecords.promptPlayerName(frame);
             if (playerName != null) {
@@ -259,13 +259,12 @@ public class Main extends JPanel {
         swapTo(frame, menuPanel);
     }
 
-    private static void startLevel(JFrame frame, int level) {
-        // next: after winning. Level 5 -> "Play Again" resets session scores and goes back to Level 1
+    public static void startLevel(JFrame frame, int level) {
         Runnable next = () -> {
             if (level < 5) {
                 startLevel(frame, level + 1);
             } else {
-                GameRecords.startNewSession(null); // keeps same player name or defaults cleanly
+                GameRecords.startNewSession(null);
                 startLevel(frame, 1);
             }
         };

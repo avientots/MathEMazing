@@ -10,7 +10,7 @@ public class StoryDialog extends JDialog {
 
     private final JTextArea textArea = new JTextArea();
     private final JLabel quoteLabel = new JLabel(" ", SwingConstants.CENTER);
-    private final StoryTheme.PixelButton actionButton = new StoryTheme.PixelButton("Skip", false, 22);
+    private final StoryTheme.PixelButton actionButton;
     private final Timer timer;
     private final String fullText;
     private final String quote;
@@ -21,18 +21,19 @@ public class StoryDialog extends JDialog {
         super(owner, StoryData.TITLES[part - 1], ModalityType.APPLICATION_MODAL);
         this.fullText = StoryData.BODY[part - 1].strip();
         this.quote = StoryData.QUOTES[part - 1];
+        this.actionButton = new StoryTheme.PixelButton("Skip", false, 22, part);
 
         setUndecorated(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-        JPanel root = new StoryTheme.BackgroundPanel(new BorderLayout(0, 14));
+        JPanel root = new StoryTheme.BackgroundPanel(new BorderLayout(0, 14), part);
         setContentPane(root);
 
-        root.add(new StoryTheme.TitleBar(StoryData.TITLES[part - 1]), BorderLayout.NORTH);
-        root.add(new StoryTheme.TextBox(textArea), BorderLayout.CENTER);
+        root.add(new StoryTheme.TitleBar(StoryData.TITLES[part - 1], part), BorderLayout.NORTH);
+        root.add(new StoryTheme.TextBox(textArea, part), BorderLayout.CENTER);
 
         quoteLabel.setFont(StoryTheme.QUOTE_FONT);
-        quoteLabel.setForeground(StoryTheme.GOLD);
+        quoteLabel.setForeground(StoryTheme.getAccent(part));
         quoteLabel.setPreferredSize(new Dimension(620, 88));
 
         actionButton.setPreferredSize(new Dimension(220, 58));

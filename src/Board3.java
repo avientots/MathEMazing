@@ -57,6 +57,13 @@ public class Board3 extends JPanel implements ActionListener {
 
         spawnRandomMathTiles();
 
+       PauseButtonHelper.attach(
+            this,
+            LEVEL,
+            () -> { timer.stop(); clearKeys(); },
+            () -> { requestFocusInWindow(); timer.start(); }
+        );
+
         timer = new Timer(16, this);
         timer.start();
     }
@@ -223,6 +230,7 @@ public class Board3 extends JPanel implements ActionListener {
             } else {
                 p.pushBack();
                 timer.start();
+
             }
         }
     }
@@ -256,12 +264,11 @@ public class Board3 extends JPanel implements ActionListener {
         if (win || gameOver) return;
         timer.stop();
         clearKeys();
-        Object[] options = {"Resume", "Restart Level", "Back to Menu"};
-        int choice = QuestionDialog.choose(this, "Game paused", "Paused",
-    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-        if (choice == 1 && onRestart != null) onRestart.run();
-        else if (choice == 2 && onMenu != null) onMenu.run();
-        else timer.start();
+        PauseButtonHelper.showPopup(
+            this,
+            LEVEL,
+            () -> { requestFocusInWindow(); timer.start(); }
+        );
     }
 
     @Override
